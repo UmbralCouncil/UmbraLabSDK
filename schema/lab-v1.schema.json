@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://umbra-project.org/schema/professional-lab-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "kind", "id", "title", "description", "category", "capabilities", "runtime"],
+  "properties": {
+    "schema": { "const": 1 },
+    "kind": { "const": "professional-lab" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "category": { "type": "string", "minLength": 1 },
+    "capabilities": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network", "memoryMiB", "vcpus", "hypervisor"],
+      "properties": {
+        "network": { "enum": ["isolated", "controlled-egress"] },
+        "memoryMiB": { "type": "integer", "minimum": 512, "maximum": 32768 },
+        "vcpus": { "type": "integer", "minimum": 1, "maximum": 16 },
+        "hypervisor": { "const": "qemu" }
+      }
+    }
+  }
+}
