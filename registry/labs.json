@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "labs": [
+    {
+      "id": "osint-workbench",
+      "title": "OSINT Workbench",
+      "description": "A modular workstation for lawful identity, domain, metadata, web, and geospatial investigations.",
+      "author": "Umbra Project",
+      "version": "1.0.0",
+      "flake": "github:UmbralCouncil/osint-workbench#lab-bundle",
+      "category": "osint",
+      "capabilities": [
+        "osint.identity",
+        "osint.domains",
+        "osint.metadata",
+        "osint.web",
+        "osint.geospatial",
+        "workspace.case-management"
+      ],
+      "professional": true
+    }
+  ]
+}

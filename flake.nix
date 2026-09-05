@@ -9,25 +9,10 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, microvm }:
+  outputs = { self, nixpkgs, microvm }:
     let
       system = "x86_64-linux";
       sdk = import ./lib { inherit nixpkgs microvm; };
-      osintLab = sdk.mkProfessionalLab {
-        inherit system;
-        id = "osint-workbench";
-        title = "OSINT Workbench";
-        description = "A modular workstation for lawful open-source intelligence investigations.";
-        capabilities = with sdk.capabilities; [
-          osint.identity
-          osint.domains
-          osint.metadata
-          osint.web
-          osint.geospatial
-          workspace.case-management
-        ];
-        modules = [ ./profiles/osint.nix ];
-      };
       pkgs = import nixpkgs { inherit system; };
     in {
       lib = sdk;
@@ -36,20 +21,21 @@
         lab-base = import ./modules/base.nix;
       };
 
-      nixosConfigurations.osint-workbench = osintLab;
-
       packages.${system} = {
-        default = osintLab.config.microvm.declaredRunner;
-        osint-workbench = osintLab.config.microvm.declaredRunner;
-        osint-manifest = osintLab.config.environment.etc."umbra/lab.json".source;
+        default = self.packages.${system}.lab-registry;
+        lab-registry = pkgs.runCommand "umbra-public-lab-registry" { } ''
+          install -Dm644 ${./registry/labs.json} $out/registry.json
+        '';
       };
 
-      checks.${system}.osint-manifest = pkgs.runCommand "osint-manifest-check" {
-        nativeBuildInputs = [ pkgs.check-jsonschema ];
-      } ''
-        check-jsonschema --schemafile ${./schema/lab-v1.schema.json} ${self.packages.${system}.osint-manifest}
-        touch $out
-      '';
+      checks.${system} = {
+        lab-registry = pkgs.runCommand "lab-registry-check" {
+          nativeBuildInputs = [ pkgs.check-jsonschema ];
+        } ''
+          check-jsonschema --schemafile ${./schema/registry-v1.schema.json} ${./registry/labs.json}
+          touch $out
+        '';
+      };
 
       templates.default = {
         path = ./templates/professional-lab;

@@ -1,16 +1,5 @@
 { nixpkgs, microvm }:
 let
-  capabilities = {
-    osint = {
-      identity = ../modules/capabilities/osint/identity.nix;
-      domains = ../modules/capabilities/osint/domains.nix;
-      metadata = ../modules/capabilities/osint/metadata.nix;
-      web = ../modules/capabilities/osint/web.nix;
-      geospatial = ../modules/capabilities/osint/geospatial.nix;
-    };
-    workspace.case-management = ../modules/capabilities/workspace/case-management.nix;
-  };
-
   mkProfessionalLab = {
     system ? "x86_64-linux",
     id,
@@ -31,5 +20,9 @@ let
       ] ++ capabilities ++ modules;
     };
 in {
-  inherit mkProfessionalLab capabilities;
+  inherit mkProfessionalLab;
+  schemas = {
+    labV1 = ../schema/lab-v1.schema.json;
+    registryV1 = ../schema/registry-v1.schema.json;
+  };
 }

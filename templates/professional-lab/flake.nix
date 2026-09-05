@@ -9,7 +9,6 @@
         id = "my-lab";
         title = "My Lab";
         description = "A purpose-built Umbra security workstation.";
-        capabilities = with umbra-lab-sdk.lib.capabilities; [ osint.metadata ];
         modules = [ ./lab.nix ];
       };
     in {

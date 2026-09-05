@@ -10,19 +10,12 @@ Umbra Studio. Every lab has its own persistent workspace disk, no host shares,
 and no network interface unless a future Studio-controlled egress policy
 explicitly grants one.
 
-## Build the OSINT workbench
-
-```sh
-nix build .#osint-workbench
-./result/bin/microvm-run
-```
-
 ## Start a lab repository
 
 ```sh
 nix flake init -t github:UmbralCouncil/UmbraLabSDK#professional-lab
 ```
 
-The initial capability catalog includes identity research, domain
-intelligence, metadata analysis, web collection, geospatial analysis, and a
-persistent case-management workspace.
+Capability modules belong to individual lab repositories. The SDK stays
+domain-neutral and provides the base microVM module, manifest schemas, lab
+builder, template, and public registry.
