@@ -29,14 +29,18 @@ in {
   config = {
     system.stateVersion = "26.05";
     networking.hostName = "umbra-${cfg.id}";
-    networking.useDHCP = false;
+    networking.useDHCP = cfg.network == "controlled-egress";
     networking.firewall.enable = true;
 
     microvm = {
       hypervisor = "qemu";
       vcpu = lib.mkDefault 4;
       mem = lib.mkDefault 4096;
-      interfaces = lib.mkForce [ ];
+      interfaces = lib.mkForce (lib.optional (cfg.network == "controlled-egress") {
+        type = "user";
+        id = "umbra-egress";
+        mac = "02:00:00:00:00:01";
+      });
       shares = lib.mkForce [ ];
       storeOnDisk = true;
       writableStoreOverlay = "/nix/.rw-store";
@@ -53,5 +57,19 @@ in {
 
     environment.systemPackages = with pkgs; [ bashInteractive coreutils curl git jq less ripgrep vim ];
     environment.etc."umbra/lab.json".source = manifest;
+
+    networking.nftables.enable = cfg.network == "controlled-egress";
+    networking.nftables.ruleset = lib.mkIf (cfg.network == "controlled-egress") ''
+      table inet umbra_egress {
+        chain output {
+          type filter hook output priority 0; policy accept;
+          oifname "lo" accept
+          udp sport 68 udp dport 67 accept
+          ip daddr 10.0.2.3 udp dport 53 accept
+          ip daddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16 } reject
+          ip6 daddr { fc00::/7, fe80::/10 } reject
+        }
+      }
+    '';
   };
 }
